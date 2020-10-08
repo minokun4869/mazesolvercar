@@ -3,7 +3,7 @@
 #include "kmotor.h"
 #include <Encoder.h>
 
-const long fwd = 100, turn = 150, maxDis = 45, maxBor = 10, Bor = 22;
+const long fwd = 100, turn = 150, maxDis = 45, maxBor = 12, Bor = 22;
 
 bool isSt = 1;
 kmotor mt(1);
