@@ -77,6 +77,16 @@ void updateDistance()
     offset = disL - disR;
 }
 
+void delayForward()
+{
+    int i = 0;
+    while(i<=10){
+        mfwd();
+        updateDistance();
+        i++;
+    }
+}
+
 void buildpath()
 {
     updateDistance();
@@ -101,6 +111,8 @@ void buildpath()
             if (offset > right_delta)
             {
                 mleft();
+                delayForward();
+
             }
             else
             {
@@ -111,6 +123,7 @@ void buildpath()
                     mfwd();
                 }
                 mright();
+                delayForward();
             }
         }
         else
@@ -130,6 +143,7 @@ void buildpath()
             if (-offset > left_delta)
             {
                 mright();
+                delayForward();
             }
             else
             {
@@ -138,7 +152,8 @@ void buildpath()
                     updateDistance();
                     mfwd();
                 }
-                mleft();   
+                mleft();
+                delayForward();
             }
         }
         else
