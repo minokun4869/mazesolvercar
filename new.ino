@@ -78,7 +78,7 @@ void buildpath()
     Serial.println(disR);
 
     double delta = 2.0 * disL;
-    double offset = disL - disR;
+    double offset = disR - disL;
     if(offset > 0){
         if(offset > delta){
             while(disF > 10){
