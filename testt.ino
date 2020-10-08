@@ -3,7 +3,7 @@
 #include "kmotor.h"
 #include <Encoder.h>
 
-const long fwd = 100, turn = 150, maxDis = 45, maxBor = 12, Bor = 22;
+const long fwd = 100, turn = 150, maxDis = 55, maxBor = 12, Bor = 22;
 
 bool isSt = 1;
 kmotor mt(1);
@@ -21,7 +21,7 @@ double getDis(int trig, int echo)
 
     pinMode(echo, INPUT);
     double dis = pulseIn(echo, 1, 30000)/58.824;
-    if (dis > 45) dis = maxDis;
+    if (dis > 55) dis = maxDis;
     if (dis <= 3) dis = 3;
     return dis;
 }
@@ -81,11 +81,9 @@ void buildpath()
     Serial.print(disF); Serial.print(' ');
     Serial.print(disL); Serial.print(' ');
     Serial.println(disR);
-//    if(disL < 12 && disF < 12)
-//    {
-//      
-//    }
-    if (disL > disR)
+    if(disL < 15 && disF < 15)
+    {
+      if (disL > disR)
       {
           alterl = 0; alterr = 20;
       }
@@ -94,6 +92,8 @@ void buildpath()
           alterl = 20; alterr = 0;
       }
       else alterl = alterr = 0;
+    }
+    
     mfwd();
     if (disL > maxBor)
     {
@@ -138,4 +138,5 @@ void setup()
 void loop()
 {
 	  buildpath();
+    Serial.println("Connected");
 }
