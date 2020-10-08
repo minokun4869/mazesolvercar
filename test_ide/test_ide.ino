@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "kmotor.h"
-#include <Encoder.h>
+//#include <Encoder.h>
 
 const long fwd = 100, turn = 150;
 kmotor mt(1);
@@ -189,7 +189,7 @@ void setup()
     Serial.begin(9600);
     //    pinMode(mtleft, INPUT); pinMode(mtright, INPUT);
     delay(1500);
-    //	  mright2();
+    //    mright2();
     //    mright();
     //    left = constrain(left, 0, 255); right = constrain(right, 0, 255);
     //    mt.tien(0, left); mt.tien(1, right); delay(1000);
