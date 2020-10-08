@@ -77,11 +77,13 @@ void buildpath()
     Serial.print(' ');
     Serial.println(disR);
 
-    double delta = 2.0 * disR;
+    double right_delta = 1.5 * disR;
+    double left_delta = 1.5 * disL;
     double offset = disL - disR;
     if(offset > 0){
-        if(offset > delta){
+        if(offset > right_delta){
             while(disF > 10){
+                disF = getDis(2, 12);
                 mfwd();
             }
             mleft();
@@ -91,8 +93,9 @@ void buildpath()
         }
     }
     else if (offset < 0){
-        if(-offset > delta){
+        if(-offset > left_delta){
             while(disF > 10){
+                disF = getDis(2, 12);
                 mfwd();
             }
             mright();
