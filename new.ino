@@ -7,6 +7,7 @@ const long fwd = 100, turn = 150;
 kmotor mt(1);
 long left, right;
 
+double disF, disL, disR, left_delta, right_delta, offset;
 
 double getDis(int trig, int echo)
 {
@@ -66,41 +67,82 @@ void mback()
     mt.stop();
 }
 
+void updateDistance()
+{
+    disF = getDis(2, 12);
+    disL = getDis(4, 5);
+    disR = getDis(11, 13);
+    left_delta = 1.5 * disL;
+    right_delta = 1.5 * disR;
+    offset = disL - disR;
+}
+
 void buildpath()
 {
-    double disF = getDis(2, 12),
-           disL = getDis(4, 5),
-           disR = getDis(11, 13);
+    updateDistance();
     Serial.print(disF);
     Serial.print(' ');
     Serial.print(disL);
     Serial.print(' ');
     Serial.println(disR);
 
-    double right_delta = 1.5 * disR;
-    double left_delta = 1.5 * disL;
-    double offset = disL - disR;
-    if(offset > 0){
-        if(offset > right_delta){
-            while(disF > 10){
-                disF = getDis(2, 12);
+    // double right_delta = 1.5 * disR;
+    // double left_delta = 1.5 * disL;
+    // double offset = disL - disR;
+    if (offset > 0)
+    {
+        if (offset > right_delta)
+        {
+            while (disF > 10)
+            {
+                updateDistance();
                 mfwd();
             }
-            mleft();
+            if (offset > right_delta)
+            {
+                mleft();
+            }
+            else
+            {
+                mback();
+                while (-offset < left_delta)
+                {
+                    updateDistance();
+                    mfwd();
+                }
+                mright();
+            }
         }
-        else{
+        else
+        {
             mfwd();
         }
     }
-    else if (offset < 0){
-        if(-offset > left_delta){
-            while(disF > 10){
+    else if (offset < 0)
+    {
+        if (-offset > left_delta)
+        {
+            while (disF > 10)
+            {
                 disF = getDis(2, 12);
                 mfwd();
             }
-            mright();
+            if (-offset > left_delta)
+            {
+                mright();
+            }
+            else
+            {
+                mback();
+                while(offset < right_delta){
+                    updateDistance();
+                    mfwd();
+                }
+                 mleft();   
+            }
         }
-        else{
+        else
+        {
             mfwd();
         }
     }
@@ -108,10 +150,6 @@ void buildpath()
     {
         mfwd();
     }
-    
-
-
-
 
     //    if(disL < 12 && disF < 12)
     //    {
@@ -164,4 +202,3 @@ void loop()
 {
     buildpath();
 }
-
