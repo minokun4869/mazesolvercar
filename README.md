@@ -1,4 +1,4 @@
-#Maze solver car
+# Maze solver car
 
 A simple project for my contest in Hanoi.
 
