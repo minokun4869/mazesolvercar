@@ -4,16 +4,21 @@
 #include <Encoder.h>
 
 const long fwd = 100, turn = 150, maxDis = 45, maxBor = 10, Bor = 22;
-
 bool isSt = 1;
-
 kmotor mt(1);
 long left, right;
-double disF, disL, disR, left_delta, right_delta, offset;
-
-int step_arr[150];
-
 int street_forward = 0, street_left = 1, street_right = 2, street_fork = 3, street_cross_road = 4, street_end = 5;
+int direction = -1, pre_state = street_forward, curr_state = street_forward;
+int step;
+char step_arr[100];
+char optimize_arr[100];
+int number_step = 0;
+bool is_first_step = false;
+double disF, disL, disR;
+    
+
+
+
 
 double getDis(int trig, int echo)
 {
@@ -27,11 +32,30 @@ double getDis(int trig, int echo)
 
     pinMode(echo, INPUT);
     double dis = pulseIn(echo, 1, 30000) / 58.824;
-    // if (dis > 45)
-    //     dis = maxDis;
-    // if (dis <= 3)
-    //     dis = 3;
     return dis;
+}
+
+int getDirection()
+{
+    if (disF >= 20 && disL > 20 && disR > 20)
+        return street_cross_road;
+    if (disF < 20 && disL > 20 && disR > 20)
+        return street_fork;
+    if (disF < 20 && disL > 20 && disL < 20)
+        return street_left;
+    if (disF < 20 && disL < 20 && disR > 20)
+        return street_right;
+    if ((disF > 20 && disL < 20 && disR < 20) || (disF > 20 && disL < 20 && disR > 20))
+        return street_forward;
+    if (disF < 20 && disL < 20 && disR < 20)
+        return street_end;
+}
+
+void updateDistance()
+{
+    disF = getDis(2, 12);
+    disL = getDis(4, 5);
+    disR = getDis(11, 13);
 }
 
 void mfwd()
@@ -39,8 +63,8 @@ void mfwd()
     left = constrain(fwd, 0, 255);
     right = constrain(fwd, 0, 255);
     mt.tien(0, left);
-    mt.tien(1, right); // delay(500);
-    //  mt.stop();
+    mt.tien(1, right); 
+   
 }
 
 void mleft()
@@ -51,6 +75,7 @@ void mleft()
     mt.tien(1, right);
     delay(300);
     mt.stop();
+   
 }
 
 void mright()
@@ -61,6 +86,7 @@ void mright()
     mt.tien(1, -right);
     delay(300);
     mt.stop();
+   
 }
 
 void mback()
@@ -71,17 +97,9 @@ void mback()
     mt.tien(1, -right);
     delay(700);
     mt.stop();
+    
 }
 
-void updateDistance()
-{
-    disF = getDis(2, 12);
-    disL = getDis(4, 5);
-    disR = getDis(11, 13);
-    // left_delta = 1.5 * disL;
-    // right_delta = 1.5 * disR;
-    // offset = disL - disR;
-}
 
 void delayForward()
 {
@@ -94,47 +112,53 @@ void delayForward()
     }
 }
 
-void getDirection()
-{
-    if (disF >= 20 && disL > 20 && disR > 20)
-        return street_cross_road;
-    if (disF < 10 && disL > 20 && disR > 20)
-        return street_fork;
-    if (disF < 20 && disL > 20 && disL < 20)
-        return street_left;
-    if (disF < 20 && disL < 20 && disR > 20)
-        return street_right;
-    if (disF > 20 && disL < 20 && disR < 20)
-        return street_forward;
-    if (disF < 20 && disL < 20 && disR < 20)
-        return street_end;
-}
+
+
+
 
 void buildpath()
 {
     updateDistance();
-    // Serial.print(disF);
-    // Serial.print(' ');
-    // Serial.print(disL);
-    // Serial.print(' ');
-    // Serial.println(disR);
-    int direction;
     direction = getDirection();
-    if(direction == street_cross_road || direction == street_fork || direction == street_left)
-        mleft();
-    else if (direction == street_right)
-        mright();
-    else if (direction == street_forward)
-        mfwd();
-    else
-        mback();
-    
+    if(direction != street_forward)
+    {
         
+        if(direction == street_left || direction == street_fork || direction == street_cross_road)
+        {
+            step_arr[number_step] = 'L';
+            mleft();
+        }
+        if(direction == street_right)
+        {
+            step_arr[number_step] = 'R';
+            mright();
+        }
+        if(direction == street_end)
+        {
+            step_arr[number_step] = 'B';
+            mback();
+        }
+        number_step++;
+    }
+    else
+    {
+        while(pre_state == street_forward && curr_state == street_forward)
+        {
+            mfwd();
+            updateDistance();
+            direction = getDirection();
+            pre_state = curr_state;
+            curr_state = direction;
+        }
+        step_arr[number_step] = "F";
+        number_step++;
+    }
+    Serial.print(step_arr[number_step-1]);
+    
+    
 
 
-    // double right_delta = 1.5 * disR;
-    // double left_delta = 1.5 * disL;
-    // double offset = disL - disR;
+   
 }
 
 void setup()
