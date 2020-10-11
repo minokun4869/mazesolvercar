@@ -11,6 +11,9 @@ kmotor mt(1);
 long left, right;
 double disF, disL, disR, left_delta, right_delta, offset;
 
+int step_arr[150];
+
+int street_forward = 0, street_left = 1, street_right = 2, street_fork = 3, street_cross_road = 4, street_end = 5;
 
 double getDis(int trig, int echo)
 {
@@ -30,7 +33,6 @@ double getDis(int trig, int echo)
     //     dis = 3;
     return dis;
 }
-
 
 void mfwd()
 {
@@ -76,133 +78,64 @@ void updateDistance()
     disF = getDis(2, 12);
     disL = getDis(4, 5);
     disR = getDis(11, 13);
-    left_delta = 1.5 * disL;
-    right_delta = 1.5 * disR;
-    offset = disL - disR;
+    // left_delta = 1.5 * disL;
+    // right_delta = 1.5 * disR;
+    // offset = disL - disR;
 }
 
 void delayForward()
 {
     int i = 0;
-    while(i<=10){
+    while (i <= 10)
+    {
         mfwd();
         updateDistance();
         i++;
     }
 }
 
+void getDirection()
+{
+    if (disF >= 20 && disL > 20 && disR > 20)
+        return street_cross_road;
+    if (disF < 10 && disL > 20 && disR > 20)
+        return street_fork;
+    if (disF < 20 && disL > 20 && disL < 20)
+        return street_left;
+    if (disF < 20 && disL < 20 && disR > 20)
+        return street_right;
+    if (disF > 20 && disL < 20 && disR < 20)
+        return street_forward;
+    if (disF < 20 && disL < 20 && disR < 20)
+        return street_end;
+}
 
 void buildpath()
 {
     updateDistance();
-    Serial.print(disF);
-    Serial.print(' ');
-    Serial.print(disL);
-    Serial.print(' ');
-    Serial.println(disR);
+    // Serial.print(disF);
+    // Serial.print(' ');
+    // Serial.print(disL);
+    // Serial.print(' ');
+    // Serial.println(disR);
+    int direction;
+    direction = getDirection();
+    if(direction == street_cross_road || direction == street_fork || direction == street_left)
+        mleft();
+    else if (direction == street_right)
+        mright();
+    else if (direction == street_forward)
+        mfwd();
+    else
+        mback();
+    
+        
+
 
     // double right_delta = 1.5 * disR;
     // double left_delta = 1.5 * disL;
     // double offset = disL - disR;
-    if (offset > 0)
-    {
-        if (offset > right_delta)
-        {
-            while (disF > 10)
-            {
-                updateDistance();
-                mfwd();
-            }
-            if (offset > right_delta)
-            {
-                mleft();
-                delayForward();
-
-            }
-            else
-            {
-                mback();
-                while (-offset < left_delta)
-                {
-                    updateDistance();
-                    mfwd();
-                }
-                mright();
-                delayForward();
-            }
-        }
-        else
-        {
-            mfwd();
-        }
-    }
-    else if (offset < 0)
-    {
-        if (-offset > left_delta)
-        {
-            while (disF > 10)
-            {
-                updateDistance();
-                mfwd();
-            }
-            if (-offset > left_delta)
-            {
-                mright();
-                delayForward();
-            }
-            else
-            {
-                mback();
-                while(offset < right_delta){
-                    updateDistance();
-                    mfwd();
-                }
-                mleft();
-                delayForward();
-            }
-        }
-        else
-        {
-            mfwd();
-        }
-    }
-    else
-    {
-        mfwd();
-    }
-
-    //    if(disL < 12 && disF < 12)
-    //    {
-    //
-    //    }
-    // if (disL > disR)
-    // {
-    //     alterl = 0;
-    //     alterr = 20;
-    // }
-    // else if (disL < disR)
-    // {
-    //     alterl = 20;
-    //     alterr = 0;
-    // }
-    // else
-    //     alterl = alterr = 0;
-    // mfwd();
-    // if (disL > maxBor)
-    // {
-    //     if (disF <= 10 || (disF >= 36 && disF <= 37.5))
-    //         mleft();
-    // }
-    // if (disL <= maxBor && disF <= maxBor && disR > maxBor)
-    // {
-    //     if (disF <= 10 || (disF >= 36 && disF <= 37.5))
-    //         mright();
-    // }
-    // if (disL <= 10 && disR <= 10 && disF <= 10)
-    //     mback();
-    //    if (disF <= 10) mt.stop();
 }
-
 
 void setup()
 {
