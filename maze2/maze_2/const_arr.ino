@@ -15,7 +15,7 @@
 #define TRIGGERPIN_RIGHT 11
 #define ECHOPIN_RIGHT 13
 
-const int MAX_DISTANCE = 100;
+const in maxDistane = 100;
 
 NewPing sonarLeft(TRIGGERPIN_LEFT, ECHOPIN_LEFT, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonarRight(TRIGGERPIN_RIGHT, ECHOPIN_RIGHT, MAX_DISTANCE);
@@ -26,8 +26,6 @@ unsigned long pingTimer;     // Holds the next ping time.
 
 
 float oldLeftSensor, oldRightSensor, leftSensor, rightSensor, frontSensor, oldFrontSensor, lSensor, rSensor, fSensor;
-bool is_start = true;
-
 
 
 
@@ -77,19 +75,12 @@ void phai()
   digitalWrite(8, 0);
   digitalWrite(3, 1);
 }
-
-void lui(bool is_start)
+void lui()
 {
   /*
     _kmotor.tien(0, -200);
     _kmotor.tien(1, -200);
   */
-  if(is_start == true)
-  {
-    is_start = false;
-    Serial.println(is_start);
-    exit(0);
-  }
   digitalWrite(7, 1);
   digitalWrite(6, 1);
   digitalWrite(8, 0);
@@ -170,19 +161,19 @@ void real_thang()
 {
   if (leftSensor >= 10 && rightSensor >= 10)
   {
-    _kmotor.run(0, 200);
+    //_kmotor.run(0, 200);
     Serial.println("Bam thang");
     analogWrite(A3, 300); //red
   }
   if (leftSensor < 10)
   {
-    bam_trai();
+    //bam_trai();
     Serial.println("Bam trai");
     analogWrite(A2, 300); //green
   }
   if (rightSensor < 10)
   {
-    bam_phai();
+    //bam_phai();
     Serial.println("Bam phai");
     analogWrite(A1, 300); //blue
   }
@@ -216,19 +207,17 @@ void FindingWall()
   Serial.println(frontSensor);
   Serial.println(leftSensor);
   Serial.println(rightSensor);
-  //Serial.println(disBack);
+  Serial.println(disBack);
   wallFront = (frontSensor <= frontThreshold) ? true : false;
   wallLeft = (leftSensor <= wallThreshold) ? true : false;
   wallRight = (rightSensor <= wallThreshold) ? true : false;
 }
 void tinh()
 {
-  
-  
+
   Serial.println("-------------");
   ReadSensors();
   FindingWall();
-  
   if (wallLeft == true)
   {
     if (wallFront == false)
@@ -241,46 +230,41 @@ void tinh()
 
       if (wallRight == true)
       {
-        
+        /*
         _kmotor.stop();
         delay(50);
-        phai();
-        delay(times);
-        _kmotor.stop();
-        delay(50);
-        phai();
-        delay(times);
+        lui();
         
         _kmotor.stop();
          delay(50);
-         
+         */
         Serial.println("Lui");
       }
 
       else
       {
-        
+        /*
         _kmotor.stop();
         delay(50);
         phai();
         delay(times);
         _kmotor.stop();
          delay(50);
-         
+         */
         Serial.println("Phai");
       }
 
     }
   }
   else
-  {
+  {/*
     _kmotor.stop();
     delay(50);
     trai();
     delay(times);
     _kmotor.stop();
          delay(50);
-         
+         */
     Serial.println("Trai");
   }
   Serial.println("-------------");
@@ -341,9 +325,7 @@ void tinh()
   analogWrite(A3, 0);
   delay(100);
 }
-
 void loop()
 {
- 
   tinh(); // nho clean banh moi lan thu
 }
