@@ -8,11 +8,11 @@
 LiquidCrystal_I2C lcd(0x27,16,2);
 kmotor _kmotor(true);
 
-int initial_motor_speed = 200;
+int initial_motor_speed = 220;
 
 bool auto_mode = 0, record_mode = 0, movable = 0;
 char state;
-int record,pre=0,dem=0,times=420;// chinh times de quay dung 90 do moi lan chinh nap lai code + clean banh 
+int record,pre=0,dem=0,times=325;// chinh times de quay dung 90 do moi lan chinh nap lai code + clean banh 
 int disFront,disLeft,disRight,disBack;
 float previous_error = 0, previous_I = 0;
 int lastError=0;
@@ -27,12 +27,12 @@ void thang(){
     _kmotor.tien(1, 200);
 }
 void trai(){
-    _kmotor.tien(0, -100);
-    _kmotor.tien(1, 100); 
+    _kmotor.tien(0, -150);
+    _kmotor.tien(1, 150); 
 }
 void phai(){
-    _kmotor.tien(0, 100);
-    _kmotor.tien(1, -100);
+    _kmotor.tien(0, 150);
+    _kmotor.tien(1, -150);
 }
 void lui(){
     _kmotor.tien(0, -200);
@@ -109,7 +109,7 @@ void bam_phai(){
 
 void real_thang(){
   if(disLeft>=10&&disRight>=10){
-     _kmotor.run(0, 200);
+     _kmotor.run(0, initial_motor_speed);
      analogWrite(A3,300);//red
   }else if(disLeft<10){
      bam_trai();
@@ -142,7 +142,7 @@ void blue_control()
 {
 	switch (state)
 	{
-		case 'F': _kmotor.tien(0, 160); _kmotor.tien(1, 150); break;
+		case 'F': _kmotor.tien(0, 165); _kmotor.tien(1, 150); break;
 		case 'B': _kmotor.run(1, 100); break;
 		case 'L': _kmotor.run(2, 100); break;
 		case 'R': _kmotor.run(3, 100); break;
@@ -157,7 +157,7 @@ void auto_control()
     disRight=getDistance(11,13);
     disBack=getDistance(9,10);
 	Serial.println(disFront);
-	if (disBack <= 3) movable = 1;
+	if (disBack <= 5) movable = 1;
 	if (!movable) return;
 //    movable = !(disBack > 3 || dem >= sturn);
 //    if (movable)
@@ -184,7 +184,11 @@ void auto_control()
         //while(!(disFront>10)){lui();disFront=getDistance(2,12);}
       }
       dem=dem+1;
-      while (dem >= sturn) _kmotor.stop();
+      if (state == 'U' || dem >= sturn)
+      {
+      	_kmotor.stop();
+      	dem = 0; movable = 0;
+      }
     }
     analogWrite(A1,0);
     analogWrite(A2,0);
@@ -192,58 +196,69 @@ void auto_control()
 //    }
 }
 
-void tinh(){
-    disFront=getDistance(2,12);
-    disLeft=getDistance(4,5);
-    disRight=getDistance(11,13);
-    disBack=getDistance(9,10);
-    
-    Serial.println(disFront);
-    Serial.println(disLeft);
-    Serial.println(disRight);
-    Serial.println(disBack);
-    if(disFront>11){//sap dam vao tuong
-        real_thang();
-    }else{
-      _kmotor.stop();
-      delay(50);
-      if(turn[dem]==0){
-        trai();delay(times);_kmotor.stop();
-        //while(!(disFront>10)){trai();disFront=getDistance(2,12);}
-      }
-      if(turn[dem]==1){
-        thang();delay(times);_kmotor.stop();
-        //while(!(disFront>10)){thang();disFront=getDistance(2,12);}
-      }
-      if(turn[dem]==2){
-        phai();delay(times);_kmotor.stop();
-        //while(!(disFront>10)){phai();disFront=getDistance(2,12);}
-      }
-      if(turn[dem]==3){
-        lui();delay(times);_kmotor.stop();
-        //while(!(disFront>10)){lui();disFront=getDistance(2,12);}
-      }
-      dem=dem+1;
-      while (dem >= sturn) _kmotor.stop();
-    }
-    analogWrite(A1,0);
-    analogWrite(A2,0);
-    analogWrite(A3,0);
-    
-}
+//void tinh(){
+//    disFront=getDistance(2,12);
+//    disLeft=getDistance(4,5);
+//    disRight=getDistance(11,13);
+//    disBack=getDistance(9,10);
+//    
+//    Serial.println(disFront);
+//    Serial.println(disLeft);
+//    Serial.println(disRight);
+//    Serial.println(disBack);
+//    if(disFront>11){//sap dam vao tuong
+//        real_thang();
+//    }else{
+//      _kmotor.stop();
+//      delay(50);
+//      if(turn[dem]==0){
+//        trai();delay(times);_kmotor.stop();
+//        //while(!(disFront>10)){trai();disFront=getDistance(2,12);}
+//      }
+//      if(turn[dem]==1){
+//        thang();delay(times);_kmotor.stop();
+//        //while(!(disFront>10)){thang();disFront=getDistance(2,12);}
+//      }
+//      if(turn[dem]==2){
+//        phai();delay(times);_kmotor.stop();
+//        //while(!(disFront>10)){phai();disFront=getDistance(2,12);}
+//      }
+//      if(turn[dem]==3){
+//        lui();delay(times);_kmotor.stop();
+//        //while(!(disFront>10)){lui();disFront=getDistance(2,12);}
+//      }
+//      dem=dem+1;
+//      while (dem >= sturn) _kmotor.stop();
+//    }
+//    analogWrite(A1,0);
+//    analogWrite(A2,0);
+//    analogWrite(A3,0);
+//    
+//}
 
 void loop()
 {
 	state = (Serial.available() > 0)? Serial.read(): 0;
+	if (state == 'U')
+	{
+		for (int i = 0; i < sturn; i++) Serial.print(turn[i]);
+		Serial.println();
+	}
 	if (state == 'Y')
 	{
 		record_mode = !record_mode;
 		if (record_mode) Serial.println("Record enabled.");
 		else Serial.println("Record disabled.");
 	}
+	if (state == 't')
+	{
+		Serial.print("Deleted char "); Serial.println(sturn);
+		sturn--; sturn = max(sturn, 0);
+		
+	}
 	if (state == 'O') 
 	{
-		auto_mode = !auto_mode;
+		auto_mode = !auto_mode; record_mode = 0;
 		if (auto_mode) Serial.println("Auto mode enabled! Pls take your car to the start pos, and wait for the line sensor car come to...");
 	}
 	if (record_mode) read_turn();
