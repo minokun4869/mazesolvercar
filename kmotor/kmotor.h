@@ -1,15 +1,15 @@
 #ifndef kmotor_h
 #define kmotor_H
 #include <Arduino.h>
-class kmotor
+class Kmotor
 {
-  public:
-   kmotor(bool msg);
-  void cauhinh();
-  void tien(int a,int b);
-  void run(int a,int b);
-  void stop();
-  private:
-  bool _msg;
-};
+    public:
+        Kmotor(bool msg);
+        void init();
+        void p(int cnt, int spd);
+        void r(int mode, int spd);
+        void s();
+    private:
+        bool _msg;
+}
 #endif

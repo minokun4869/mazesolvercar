@@ -1,73 +1,49 @@
 #include "kmotor.h"
-kmotor::kmotor(bool msg)
+
+int mdig[] = {7, 8}, manl[] = {6, 3};
+
+Kmotor::Kmotor(bool msg)
 {
-  _msg=msg;
+    _msg = msg;
 }
-void kmotor::cauhinh()
+
+void Kmotor::init()
 {
-  pinMode(3,OUTPUT);
-  pinMode(6,OUTPUT);
-  pinMode(8,OUTPUT);
-  pinMode(7,OUTPUT);
+    for (int i = 0; i < 2; i++)
+    {
+        pinMode(mdig[i], OUTPUT); pinMode(manl[i], OUTPUT);
+    }
 }
-void kmotor::tien(int a,int b)
+
+void Kmotor::p(int cnt, int spd)
 {
-  if(a==0&&b>=0)
-  {
-    digitalWrite(7,HIGH);
-    analogWrite(6,b);
-  }
-  if(a==0&&b<0)
- {
-   digitalWrite(7,LOW);
-    analogWrite(6,(-b));
- } 
-   if(a==1&&b>=0)
-  {
-    digitalWrite(8,HIGH);
-    analogWrite(3,b);
-  }
-  if(a==1&&b<0)
- {
-   digitalWrite(8,LOW);
-    analogWrite(3,(-b));
- }
+    digitalWrite(mdig[cnt], (spd >= 0));
+    analogWrite(mdig[cnt], abs(spd));
 }
-void kmotor::run(int a,int b)
+
+void Kmotor::r(int mode, int spd)
 {
-  if(a==0)
-  {
-	   digitalWrite(7,1);
-	   analogWrite(6,b);  
-	   digitalWrite(8,1);
-	   analogWrite(3,b); 
-  }
-  if(a==1)
-  {
-	   digitalWrite(7,0);
-	   analogWrite(6,b);  
-	   digitalWrite(8,0);
-	   analogWrite(3,b); 
-  }
-  if(a==2)
-  {
-	   digitalWrite(7,0);
-	   analogWrite(6,b);  
-	   digitalWrite(8,1);
-	   analogWrite(3,b); 
-  }
-  if(a==3)
-  {
-	   digitalWrite(7,1);
-	   analogWrite(6,b);  
-	   digitalWrite(8,0);
-	   analogWrite(3,b); 
-  }
+    switch(mode)
+    {
+        case 0: // fwd
+            this.p(0, spd);
+            this.p(1, spd);
+            break;
+        case 1: //bwd
+            this.p(0, -spd);
+            this.p(1, -spd);
+            break;
+        case 2: //turn left
+            this.p(0, -spd);
+            this.p(1, spd);
+            break;
+        case 3:
+            this.p(0, spd);
+            this.p(1, -spd);
+    }
 }
-void kmotor::stop()
+
+void Kmotor::s()
 {
-	   digitalWrite(7,1);
-	   analogWrite(6,0);  
-	   digitalWrite(8,1);
-	   analogWrite(3,0); 
-  }
+    this.r(0, 0);
+}
