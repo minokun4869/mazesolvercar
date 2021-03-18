@@ -11,5 +11,5 @@ class Kmotor
         void s();
     private:
         bool _msg;
-}
+};
 #endif
